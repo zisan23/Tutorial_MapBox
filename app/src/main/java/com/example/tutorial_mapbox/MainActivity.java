@@ -1,6 +1,5 @@
 package com.example.tutorial_mapbox;
 
-import androidx.appcompat.app.ActionBar;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;

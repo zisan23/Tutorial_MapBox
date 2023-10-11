@@ -144,11 +144,11 @@ public class MapActivity extends AppCompatActivity {
         @Override
         public void onActivityResult(Boolean result) {
             if(result) {
-                Toast.makeText(MapActivity.this, "Permission Granted", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MapActivity.this, "Permission Granted! Restart the app", Toast.LENGTH_SHORT).show();
             }
-            else {
-                Toast.makeText(MapActivity.this, "Permission Not Denied", Toast.LENGTH_SHORT).show();
-            }
+//            else {
+//                Toast.makeText(MapActivity.this, "Permission Denied", Toast.LENGTH_SHORT).show();
+//            }
         }
     });
 
@@ -173,7 +173,7 @@ public class MapActivity extends AppCompatActivity {
         public void onMoveBegin(@NonNull MoveGestureDetector moveGestureDetector) {
             focousLOCATION = false;
             getGestures(mapView).removeOnMoveListener(this);
-            focouslocation.show();
+//            focouslocation.show();
 
             //prev
             getLocationComponent(mapView).removeOnIndicatorPositionChangedListener(onIndicatorPositionChangedListener);
@@ -194,6 +194,7 @@ public class MapActivity extends AppCompatActivity {
     };
 
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -203,7 +204,7 @@ public class MapActivity extends AppCompatActivity {
         focouslocation = findViewById(R.id.focouslocation);
         setRoute = findViewById(R.id.setRoute);
 
-        focouslocation.hide();
+//        focouslocation.hide();
 
         MapboxRouteLineOptions options = new MapboxRouteLineOptions.Builder(this).withRouteLineResources(new RouteLineResources.Builder().build())
                 .withRouteLineBelowLayerId("road-label-navigation").build();
@@ -218,27 +219,41 @@ public class MapActivity extends AppCompatActivity {
         mapboxNavigation.registerRoutesObserver(routesObserver);
         mapboxNavigation.registerLocationObserver(locationObserver);
 
+//        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
+//            String[] permissionsToRequest = new String[]{
+//                    Manifest.permission.POST_NOTIFICATIONS,
+//                    Manifest.permission.ACCESS_FINE_LOCATION,
+//                    Manifest.permission.ACCESS_COARSE_LOCATION
+//            };
+//
+//            boolean allPermissionsGranted = true;
+//
+//            for (String permission : permissionsToRequest) {
+//                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
+//                    allPermissionsGranted = false;
+//                    break;
+//                }
+//            }
+//
+//            if (!allPermissionsGranted) {
+//                ActivityCompat.requestPermissions(this, permissionsToRequest, REQUEST_CODE_PERMISSIONS);
+//            } else {
+//                mapboxNavigation.startTripSession();
+//            }
+//        }
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
-            String[] permissionsToRequest = new String[]{
-                    Manifest.permission.POST_NOTIFICATIONS,
-                    Manifest.permission.ACCESS_FINE_LOCATION,
-                    Manifest.permission.ACCESS_COARSE_LOCATION
-            };
-
-            boolean allPermissionsGranted = true;
-
-            for (String permission : permissionsToRequest) {
-                if (ActivityCompat.checkSelfPermission(this, permission) != PackageManager.PERMISSION_GRANTED) {
-                    allPermissionsGranted = false;
-                    break;
-                }
+            if (ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.POST_NOTIFICATIONS) != PackageManager.PERMISSION_GRANTED) {
+                activityResultLauncher.launch(Manifest.permission.POST_NOTIFICATIONS);
             }
+        }
 
-            if (!allPermissionsGranted) {
-                ActivityCompat.requestPermissions(this, permissionsToRequest, REQUEST_CODE_PERMISSIONS);
-            } else {
-                mapboxNavigation.startTripSession();
-            }
+
+        if (ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                && ActivityCompat.checkSelfPermission(MapActivity.this, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            activityResultLauncher.launch(Manifest.permission.ACCESS_FINE_LOCATION);
+            activityResultLauncher.launch(Manifest.permission.ACCESS_COARSE_LOCATION);
+        } else {
+            mapboxNavigation.startTripSession();
         }
 
 
@@ -256,7 +271,7 @@ public class MapActivity extends AppCompatActivity {
         });
 
 
-        mapView.getMapboxMap().loadStyleUri(Style.TRAFFIC_DAY, new Style.OnStyleLoaded() {
+        mapView.getMapboxMap().loadStyleUri(Style.SATELLITE, new Style.OnStyleLoaded() {
             @Override
             public void onStyleLoaded(@NonNull Style style) {
                 mapView.getMapboxMap().setCamera(new CameraOptions.Builder().zoom(15.0).build());
